@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.eurasia.mapper.ItemsMapperCustom">
+    <!--定义商品查询的sql片段，就是商品查询条件-->
+    <!--使用动态sql，通过if判断，满足条件进行sql拼接
+       商品查询条件通过ItemsQueryVo包装对象中itemsCustom属性传递-->
+    <sql id="query_items_where">
+        <if test="itemsCustom!=null">
+            <if test="itemsCustom.name!=null and itemsCustom.name!=''">
+                items.name LIKE '%${itemsCustom.name}%'
+            </if>
+        </if>
+    </sql>
+
+    <!--商品列表查询
+  parameterType：传入包装对象（包装了查询条件）
+  resultType：建议使用扩展对象
+    -->
+    <select id="findItemsList" parameterType="com.eurasia.pojo.ItemsQueryVo" resultType="com.eurasia.pojo.ItemsCustom">
+        SELECT items.* FROM items
+        <where>
+            <include refid="query_items_where"/>
+        </where>
+    </select>
+
+
+    <resultMap id="BaseResultMap" type="com.eurasia.pojo.Items">
+        <constructor>
+            <idArg column="id" jdbcType="INTEGER" javaType="java.lang.Integer"/>
+            <arg column="name" jdbcType="VARCHAR" javaType="java.lang.String"/>
+            <arg column="price" jdbcType="REAL" javaType="java.lang.Float"/>
+            <arg column="pic" jdbcType="VARCHAR" javaType="java.lang.String"/>
+            <arg column="createtime" jdbcType="TIMESTAMP" javaType="java.util.Date"/>
+        </constructor>
+    </resultMap>
+    <resultMap id="ResultMapWithBLOBs" type="com.eurasia.pojo.Items">
+        <constructor>
+            <idArg column="id" jdbcType="INTEGER" javaType="java.lang.Integer"/>
+            <arg column="name" jdbcType="VARCHAR" javaType="java.lang.String"/>
+            <arg column="price" jdbcType="REAL" javaType="java.lang.Float"/>
+            <arg column="pic" jdbcType="VARCHAR" javaType="java.lang.String"/>
+            <arg column="createtime" jdbcType="TIMESTAMP" javaType="java.util.Date"/>
+            <arg column="detail" jdbcType="LONGVARCHAR" javaType="java.lang.String"/>
+        </constructor>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, name, price, pic, createtime
+  </sql>
+    <sql id="Blob_Column_List">
+    detail
+  </sql>
+    <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer">
+        select
+        <include refid="Base_Column_List"/>
+        ,
+        <include refid="Blob_Column_List"/>
+        from items
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from items
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+    <insert id="insert" parameterType="com.eurasia.pojo.Items">
+    insert into items (id, name, price, 
+      pic, createtime, detail
+      )
+    values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{price,jdbcType=REAL}, 
+      #{pic,jdbcType=VARCHAR}, #{createtime,jdbcType=TIMESTAMP}, #{detail,jdbcType=LONGVARCHAR}
+      )
+  </insert>
+    <insert id="insertSelective" parameterType="com.eurasia.pojo.Items">
+        insert into items
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="name != null">
+                name,
+            </if>
+            <if test="price != null">
+                price,
+            </if>
+            <if test="pic != null">
+                pic,
+            </if>
+            <if test="createtime != null">
+                createtime,
+            </if>
+            <if test="detail != null">
+                detail,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="name != null">
+                #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="price != null">
+                #{price,jdbcType=REAL},
+            </if>
+            <if test="pic != null">
+                #{pic,jdbcType=VARCHAR},
+            </if>
+            <if test="createtime != null">
+                #{createtime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="detail != null">
+                #{detail,jdbcType=LONGVARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.eurasia.pojo.Items">
+        update items
+        <set>
+            <if test="name != null">
+                name = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="price != null">
+                price = #{price,jdbcType=REAL},
+            </if>
+            <if test="pic != null">
+                pic = #{pic,jdbcType=VARCHAR},
+            </if>
+            <if test="createtime != null">
+                createtime = #{createtime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="detail != null">
+                detail = #{detail,jdbcType=LONGVARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.eurasia.pojo.Items">
+    update items
+    set name = #{name,jdbcType=VARCHAR},
+      price = #{price,jdbcType=REAL},
+      pic = #{pic,jdbcType=VARCHAR},
+      createtime = #{createtime,jdbcType=TIMESTAMP},
+      detail = #{detail,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+    <update id="updateByPrimaryKey" parameterType="com.eurasia.pojo.Items">
+    update items
+    set name = #{name,jdbcType=VARCHAR},
+      price = #{price,jdbcType=REAL},
+      pic = #{pic,jdbcType=VARCHAR},
+      createtime = #{createtime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+</mapper>
